@@ -1,10 +1,32 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/defc503b58d644c397d0fd68df039b86)](https://www.codacy.com/gh/Grubsic/RediCraft-API-Wrapper/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Grubsic/RediCraft-API-Wrapper&amp;utm_campaign=Badge_Grade)
+[![](https://jitpack.io/v/Grubsic/RediCraft-API-Wrapper.svg)](https://jitpack.io/#Grubsic/RediCraft-API-Wrapper)
 
 # RediCraft API Java Wrapper
 This is the java wrapper of the api from **RediCraft** described in: http://api.redicraft.eu/
 **Please read the important information at the end of this readme.**
 ---
 ## Usage
+To add this to your project, add this repository:
+
+```
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+Then add the dependency:
+
+```
+<dependency>
+    <groupId>com.github.Grubsic</groupId>
+    <artifactId>RediCraft-API-Wrapper</artifactId>
+    <version>Tag</version>
+</dependency>
+```
+
 There are four basic interfaces to obtain the data from http://api.redicraft.eu/, this interfaces are:
 
 * `User`
@@ -45,13 +67,12 @@ Where `RCServerList` is an `enum`, you have to select an option, for example: `R
 Since minecraft UUID's are not formatted in the standard Java UUID with dashes, there's a small class to handle UUID's
 named `UUIDUtils`. Includes the methods:
 
-`public static String trimmedToFull(String uuid);`
-
-`public static String trimmedToFull(UUID uuid);`
-
-`public static String fullToTrimmed(String uuid);`
-
-`public static String fullToTrimmed(UUID uuid);`
+```
+public static String trimmedToFull(String uuid);
+public static String trimmedToFull(UUID uuid);
+public static String fullToTrimmed(String uuid);
+public static String fullToTrimmed(UUID uuid);
+```
 
 You can build from a minecraft UUID, for example: `42e325b439f849efa4d09279ba851be5`
 
