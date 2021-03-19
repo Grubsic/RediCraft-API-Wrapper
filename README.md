@@ -1,3 +1,5 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/defc503b58d644c397d0fd68df039b86)](https://www.codacy.com/gh/Grubsic/RediCraft-API-Wrapper/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Grubsic/RediCraft-API-Wrapper&amp;utm_campaign=Badge_Grade)
+
 # RediCraft API Java Wrapper
 This is the java wrapper of the api from **RediCraft** described in: http://api.redicraft.eu/
 **Please read the important information at the end of this readme.**
@@ -62,5 +64,6 @@ UUID Class **IS NOT** compatible with this format: `42e325b439f849efa4d09279ba85
 That will throw an exception.
 
 ---
-### Important note
+**Important note:**
+
 Due to API small lifetime, the method `getTps();` will return always `20` (default Minecraft TPS). This is going to be fixed soon.
