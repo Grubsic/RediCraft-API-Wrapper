@@ -21,9 +21,9 @@ Then add the dependency:
 
 ```
 <dependency>
-    <groupId>com.github.Grubsic</groupId>
-    <artifactId>RediCraft-API-Wrapper</artifactId>
-    <version>Tag</version>
+	 <groupId>com.github.Grubsic</groupId>
+	<artifactId>RediCraft-API-Wrapper</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
