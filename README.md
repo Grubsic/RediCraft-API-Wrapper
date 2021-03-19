@@ -62,5 +62,5 @@ UUID Class **IS NOT** compatible with this format: `42e325b439f849efa4d09279ba85
 That will throw an exception.
 
 ---
-# Important note
+### Important note
 Due to API small lifetime, the method `getTps();` will return always `20` (default Minecraft TPS). This is going to be fixed soon.
