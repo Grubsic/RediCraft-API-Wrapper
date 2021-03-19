@@ -40,7 +40,7 @@ public class RediCraft{
 		return false;
 	}
 
-	public static ArrayList<? extends World> getWorldList(RCServerList server) throws RediAPIException{
+	public static ArrayList<World> getWorldList(RCServerList server) throws RediAPIException{
 		try{
 			URL url = new URL("http://api.redicraft.eu/isWorldSettings?server=" + parseWorld(server));
 			HttpURLConnection con = (HttpURLConnection)url.openConnection();
