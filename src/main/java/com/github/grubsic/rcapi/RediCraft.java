@@ -4,11 +4,10 @@ import com.github.grubsic.rcapi.interfaces.Radio;
 import com.github.grubsic.rcapi.interfaces.Server;
 import com.github.grubsic.rcapi.interfaces.User;
 import com.github.grubsic.rcapi.interfaces.World;
-import me.grubsic.launcherapi.utilities.UUIDUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
