@@ -44,7 +44,7 @@ public class RediCraft{
 	public static ArrayList<? extends World> getWorldList(RCServerList server) throws RediAPIException{
 		try{
 			URL url = new URL("http://api.redicraft.eu/isWorldSettings?server=" + parseWorld(server));
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
 			con.setRequestMethod("GET");
 
 			JSONObject worldJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
