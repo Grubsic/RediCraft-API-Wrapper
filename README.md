@@ -57,7 +57,7 @@ Where `RCServerList` is an `enum`, you have to select an option, for example: `R
 
 Where `userUUID` is an instance of the Java Class `UUID`.
 This method returns a boolean, `true` if the user is whitelisted, `false` if opposite.
-### To obtain a list of the worlds from a server, use
+### To obtain a list of the worlds and their information from a server, use
 `List<World> worlds = RediCraft.getWorldList(RCServerList);`
 
 Where `RCServerList` is an `enum`, you have to select an option, for example: `RCServerList.LOBBY`.
