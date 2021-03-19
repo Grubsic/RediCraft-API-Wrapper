@@ -69,7 +69,6 @@ named `UUIDUtils`. Includes the methods:
 
 ```
 public static String trimmedToFull(String uuid);
-public static String trimmedToFull(UUID uuid);
 public static String fullToTrimmed(String uuid);
 public static String fullToTrimmed(UUID uuid);
 ```
