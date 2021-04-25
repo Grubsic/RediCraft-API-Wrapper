@@ -9,7 +9,7 @@ public interface Server{
 	boolean isOnline();
 	int getRAMUsage();
 	int getAvailableRAM();
-	int getTps();
+	double getTps();
 	String getServerGameVersion();
 	boolean isStaffServer();
 	int getCurrentPlayers();
