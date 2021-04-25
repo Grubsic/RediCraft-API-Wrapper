@@ -32,8 +32,7 @@ public class RediCraft{
 		con.getInputStream().close();
 		con.disconnect();
 
-		if(userJson.getInt("status") == 1){ return true; }
-		return false;
+		return userJson.getInt("status") == 1;
 	}
 
 	public static ArrayList<World> getWorldList(RCServerList server) throws RediAPIException, IOException{
