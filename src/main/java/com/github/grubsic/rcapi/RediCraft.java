@@ -16,65 +16,57 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.UUID;
 
 public class RediCraft{
 
-	public static User getUserInfo(UUID uuid) throws RediAPIException{ return new RCUser(uuid); }
-	public static Radio getRadioInfo() throws RediAPIException{ return new RCRadio(); }
-	public static Server getServerInfo(RCServerList server) throws RediAPIException { return new RCServer(server); }
+	public static User getUserInfo(String uuid) throws RediAPIException, IOException{ return new RCUser(uuid); }
+	public static Radio getRadioInfo() throws RediAPIException, IOException{ return new RCRadio(); }
+	public static Server getServerInfo(RCServerList server) throws RediAPIException, IOException{ return new RCServer(server); }
 
-	public static boolean isUserWhitelisted(UUID uuid){
-		try{
-			URL url = new URL("http://api.redicraft.eu/isWhitelist?user=" + UUIDUtils.fullToTrimmed(uuid));
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
+	public static boolean isUserWhitelisted(String uuid) throws IOException{
+		URL url = new URL("https://api.redicraft.eu/isWhitelist?user=" + uuid);
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		con.setRequestMethod("GET");
 
-			JSONObject userJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
-			con.getInputStream().close();
-			con.disconnect();
+		JSONObject userJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
+		con.getInputStream().close();
+		con.disconnect();
 
-			if(userJson.getInt("status") == 1){ return true; }
-		}
-		catch(IOException e){ e.printStackTrace(); }
+		if(userJson.getInt("status") == 1){ return true; }
 		return false;
 	}
 
-	public static ArrayList<World> getWorldList(RCServerList server) throws RediAPIException{
-		try{
-			URL url = new URL("http://api.redicraft.eu/isWorldSettings?server=" + parseWorld(server));
-			HttpURLConnection con = (HttpURLConnection)url.openConnection();
-			con.setRequestMethod("GET");
+	public static ArrayList<World> getWorldList(RCServerList server) throws RediAPIException, IOException{
+		URL url = new URL("https://api.redicraft.eu/isWorldSettings?server=" + parseWorld(server));
+		HttpURLConnection con = (HttpURLConnection)url.openConnection();
+		con.setRequestMethod("GET");
 
-			JSONObject worldJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
-			con.getInputStream().close();
-			con.disconnect();
+		JSONObject worldJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
+		con.getInputStream().close();
+		con.disconnect();
 
-			if(worldJson.getInt("status") == 0){
-				throw new RediAPIException("Server not found, server message: " + worldJson.getString("error"));
-			}
-
-			ArrayList<World> worlds = new ArrayList<>();
-			for(int i = 0; i < worldJson.getJSONArray("info").length(); i++){
-				JSONObject worldInfo = worldJson.getJSONArray("info").getJSONObject(i);
-				RCWorld world = new RCWorld();
-
-				world.server = worldInfo.getString("server");
-				world.worldName = worldInfo.getString("world");
-				world.weather = worldInfo.getString("weather");
-
-				world.time = LocalTime.parse(
-						worldInfo.getString("time"), DateTimeFormatter.ofPattern("h:m a")
-				);
-				world.players = worldInfo.getInt("players");
-
-				worlds.add(world);
-			}
-
-			return worlds;
+		if(worldJson.getInt("status") == 0){
+			throw new RediAPIException("Server not found, server message: " + worldJson.getString("error"));
 		}
-		catch(IOException e){ e.printStackTrace(); }
-		return null;
+
+		ArrayList<World> worlds = new ArrayList<>();
+		for(int i = 0; i < worldJson.getJSONArray("info").length(); i++){
+			JSONObject worldInfo = worldJson.getJSONArray("info").getJSONObject(i);
+			RCWorld world = new RCWorld();
+
+			world.server = worldInfo.getString("server");
+			world.worldName = worldInfo.getString("world");
+			world.weather = worldInfo.getString("weather");
+
+			world.time = LocalTime.parse(
+					worldInfo.getString("time"), DateTimeFormatter.ofPattern("h:m a")
+			);
+			world.players = worldInfo.getInt("players");
+
+			worlds.add(world);
+		}
+
+		return worlds;
 	}
 
 	private static String parseWorld(RCServerList server){
@@ -108,50 +100,46 @@ public class RediCraft{
 		private boolean isLoggedIn;
 		private boolean isStaff;
 
-		public RCUser(UUID uuid) throws RediAPIException{
+		public RCUser(String uuid) throws RediAPIException, IOException{
+			URL url = new URL("https://api.redicraft.eu/isUser?user=" + uuid);
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+			con.setRequestMethod("GET");
 
-			try{
-				URL url = new URL("http://api.redicraft.eu/isUser?user=" + UUIDUtils.fullToTrimmed(uuid));
-				HttpURLConnection con = (HttpURLConnection)url.openConnection();
-				con.setRequestMethod("GET");
+			JSONObject userJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
+			con.getInputStream().close();
+			con.disconnect();
 
-				JSONObject userJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
-				con.getInputStream().close();
-				con.disconnect();
-
-				if(userJson.getInt("status") == 0){
-					throw new RediAPIException("User not found, server message: " + userJson.getString("error"));
-				}
-
-				JSONObject userInfo = userJson.getJSONArray("info").getJSONObject(0);
-				discordID = userInfo.getLong("discord-id");
-				userID = userInfo.getLong("user-id");
-				isOnline = userInfo.getString("online").equals("1");
-				moneyCash = userInfo.getLong("money-cash");
-				moneyBank = userInfo.getLong("money-bank");
-				role = userInfo.getString("user-role");
-				prefix = userInfo.getString("user-prefix");
-				username = userInfo.getString("user-name");
-				language = Locale.forLanguageTag(userInfo.getString("user-language"));
-				server = userInfo.getString("user-server");
-
-				final String datePatern = "dd/MM/yy - HH:mm:ss";
-				dateOfFirstJoin = LocalDateTime.parse(
-						userInfo.getString("user-first-join"),
-						DateTimeFormatter.ofPattern(datePatern)
-				);
-
-				dateOfLastJoin = LocalDateTime.parse(
-						userInfo.getString("user-last-join"),
-						DateTimeFormatter.ofPattern(datePatern)
-				);
-
-
-				playTime = userInfo.getLong("user-playtime");
-				isLoggedIn = userInfo.getString("user-logged-in").equals("1");
-				isStaff = userInfo.getString("user-is-staff").equals("1");
+			if(userJson.getInt("status") == 0){
+				throw new RediAPIException("User not found, server message: " + userJson.getString("error"));
 			}
-			catch(IOException e){ e.printStackTrace(); }
+
+			JSONObject userInfo = userJson.getJSONArray("info").getJSONObject(0);
+			discordID = userInfo.getLong("discord-id");
+			userID = userInfo.getLong("user-id");
+			isOnline = userInfo.getString("online").equals("1");
+			moneyCash = userInfo.getLong("money-cash");
+			moneyBank = userInfo.getLong("money-bank");
+			role = userInfo.getString("user-role");
+			prefix = userInfo.getString("user-prefix");
+			username = userInfo.getString("user-name");
+			language = Locale.forLanguageTag(userInfo.getString("user-language"));
+			server = userInfo.getString("user-server");
+
+			final String datePatern = "dd/MM/yy - HH:mm:ss";
+			dateOfFirstJoin = LocalDateTime.parse(
+					userInfo.getString("user-first-join"),
+					DateTimeFormatter.ofPattern(datePatern)
+			);
+
+			dateOfLastJoin = LocalDateTime.parse(
+					userInfo.getString("user-last-join"),
+					DateTimeFormatter.ofPattern(datePatern)
+			);
+
+
+			playTime = userInfo.getLong("user-playtime");
+			isLoggedIn = userInfo.getString("user-logged-in").equals("1");
+			isStaff = userInfo.getString("user-is-staff").equals("1");
 		}
 
 		@Override public long getDiscordID(){ return discordID; }
@@ -180,29 +168,25 @@ public class RediCraft{
 		private String playList;
 		private int listeners;
 
-		public RCRadio() throws RediAPIException{
+		public RCRadio() throws RediAPIException, IOException{
+			URL url = new URL("https://api.redicraft.eu/isRadio");
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+			con.setRequestMethod("GET");
 
-			try{
-				URL url = new URL("http://api.redicraft.eu/isRadio");
-				HttpURLConnection con = (HttpURLConnection)url.openConnection();
-				con.setRequestMethod("GET");
+			JSONObject radioJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
+			con.getInputStream().close();
+			con.disconnect();
 
-				JSONObject radioJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
-				con.getInputStream().close();
-				con.disconnect();
-
-				if(radioJson.getInt("status") == 0){
-					throw new RediAPIException("Radio info not found, server message: " + radioJson.getString("error"));
-				}
-
-				JSONObject radioInfo = radioJson.getJSONArray("info").getJSONObject(0);
-				track = radioInfo.getString("track");
-				artist = radioInfo.getString("artist");
-				album = radioInfo.getString("album");
-				playList = radioInfo.getString("playlist");
-				listeners = radioInfo.getInt("listeners");
+			if(radioJson.getInt("status") == 0){
+				throw new RediAPIException("Radio info not found, server message: " + radioJson.getString("error"));
 			}
-			catch(IOException e){ e.printStackTrace(); }
+
+			JSONObject radioInfo = radioJson.getJSONArray("info").getJSONObject(0);
+			track = radioInfo.getString("track");
+			artist = radioInfo.getString("artist");
+			album = radioInfo.getString("album");
+			playList = radioInfo.getString("playlist");
+			listeners = radioInfo.getInt("listeners");
 		}
 
 		@Override public String getTrack(){ return track; }
@@ -220,7 +204,7 @@ public class RediCraft{
 		private boolean online;
 		private int ramUsage;
 		private int availableRAM;
-		private int tps;
+		private double tps;
 		private String serverGameVersion;
 		private boolean isStaffServer;
 		private int currentPlayers;
@@ -230,43 +214,39 @@ public class RediCraft{
 		private boolean locked;
 		private LocalDateTime onlineSince;
 
-		public RCServer(RCServerList server) throws RediAPIException{
+		public RCServer(RCServerList server) throws RediAPIException, IOException{
+			URL url = new URL("https://api.redicraft.eu/isServer?server=" + parseWorld(server));
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+			con.setRequestMethod("GET");
 
-			try{
-				URL url = new URL("http://api.redicraft.eu/isServer?server=" + parseWorld(server));
-				HttpURLConnection con = (HttpURLConnection)url.openConnection();
-				con.setRequestMethod("GET");
+			JSONObject serverJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
+			con.getInputStream().close();
+			con.disconnect();
 
-				JSONObject serverJson = new JSONObject(IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8));
-				con.getInputStream().close();
-				con.disconnect();
-
-				if(serverJson.getInt("status") == 0){
-					throw new RediAPIException("Server not found, server message: " + serverJson.getString("error"));
-				}
-
-				JSONObject serverInfo = serverJson.getJSONArray("info").getJSONObject(0);
-				serverName = serverInfo.getString("server-name");
-				serverID = serverInfo.getInt("server-id");
-				online = serverInfo.getString("online").equals("1");
-				ramUsage = serverInfo.getInt("ram-usage");
-				availableRAM = serverInfo.getInt("ram-available");
-				tps = 20; //serverInfo.getInt("tps"); // The api is not fixed yet, so we put default minecraft tps
-				serverGameVersion = serverInfo.getString("version");
-				isStaffServer = serverInfo.getString("staff-server").equals("1");
-				currentPlayers = serverInfo.getInt("current-players");
-				currentStaffPlayers = serverInfo.getInt("current-staffs");
-				serverSlots = serverInfo.getInt("slots");
-				monitored = serverInfo.getString("monitoring").equals("1");
-				locked = serverInfo.getString("locked").equals("1");
-
-				final String datePatern = "dd/MM/yy - HH:mm:ss";
-				onlineSince = LocalDateTime.parse(
-						serverInfo.getString("online-since"),
-						DateTimeFormatter.ofPattern(datePatern)
-				);
+			if(serverJson.getInt("status") == 0){
+				throw new RediAPIException("Server not found, server message: " + serverJson.getString("error"));
 			}
-			catch(IOException e){ e.printStackTrace(); }
+
+			JSONObject serverInfo = serverJson.getJSONArray("info").getJSONObject(0);
+			serverName = serverInfo.getString("server-name");
+			serverID = serverInfo.getInt("server-id");
+			online = serverInfo.getString("online").equals("1");
+			ramUsage = serverInfo.getInt("ram-usage");
+			availableRAM = serverInfo.getInt("ram-available");
+			tps = serverInfo.getDouble("tps");
+			serverGameVersion = serverInfo.getString("version");
+			isStaffServer = serverInfo.getString("staff-server").equals("1");
+			currentPlayers = serverInfo.getInt("current-players");
+			currentStaffPlayers = serverInfo.getInt("current-staffs");
+			serverSlots = serverInfo.getInt("slots");
+			monitored = serverInfo.getString("monitoring").equals("1");
+			locked = serverInfo.getString("locked").equals("1");
+
+			final String datePattern = "dd/MM/yy - HH:mm:ss";
+			onlineSince = LocalDateTime.parse(
+					serverInfo.getString("online-since"),
+					DateTimeFormatter.ofPattern(datePattern)
+			);
 		}
 
 		@Override public String getServerName(){ return serverName; }
@@ -274,7 +254,7 @@ public class RediCraft{
 		@Override public boolean isOnline(){ return online; }
 		@Override public int getRAMUsage(){ return ramUsage; }
 		@Override public int getAvailableRAM(){ return availableRAM; }
-		@Override public int getTps(){ return tps; }
+		@Override public double getTps(){ return tps; }
 		@Override public String getServerGameVersion(){ return serverGameVersion; }
 		@Override public boolean isStaffServer(){ return isStaffServer; }
 		@Override public int getCurrentPlayers(){ return currentPlayers; }

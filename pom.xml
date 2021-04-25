@@ -6,7 +6,7 @@
 
     <groupId>com.github.grubsic</groupId>
     <artifactId>redicraft-api-wrapper</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>RediCraft API Java</name>
     <packaging>jar</packaging>
 
