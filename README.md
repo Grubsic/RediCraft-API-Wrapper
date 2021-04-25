@@ -4,7 +4,7 @@
 # RediCraft API Java Wrapper
 This is the java wrapper of the api from **RediCraft** described in: http://api.redicraft.eu/
 **Please read the important information at the end of this readme.**
----
+
 ## Usage
 To add this to your project, add this repository:
 
@@ -61,29 +61,3 @@ This method returns a boolean, `true` if the user is whitelisted, `false` if opp
 `List<World> worlds = RediCraft.getWorldList(RCServerList);`
 
 Where `RCServerList` is an `enum`, you have to select an option, for example: `RCServerList.LOBBY`.
-
----
-# Important Information
-Since minecraft UUID's are not formatted in the standard Java UUID with dashes, there's a small class to handle UUID's
-named `UUIDUtils`. Includes the methods:
-
-```
-public static String trimmedToFull(String uuid);
-public static String fullToTrimmed(String uuid);
-public static String fullToTrimmed(UUID uuid);
-```
-
-You can build from a minecraft UUID, for example: `42e325b439f849efa4d09279ba851be5`
-
-You can use: `trimmedToFull("42e325b439f849efa4d09279ba851be5");`, this will return the `String`: `"42e325b4-39f8-49ef-a4d0-9279ba851be5"`
-
-Then you can build an `UUID` object with `UUID.fromString("42e325b4-39f8-49ef-a4d0-9279ba851be5");`.
-
-UUID Class **IS NOT** compatible with this format: `42e325b439f849efa4d09279ba851be5`
-
-That will throw an exception.
-
----
-**Important note:**
-
-Due to API small lifetime, the method `getTps();` will return always `20` (default Minecraft TPS). This is going to be fixed soon.
